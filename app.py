@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
-from test import fetch_coconut_prices, fetch_fred_from_ycharts, fetch_bromine_details, fetch_cnyes_energy2_close_price
+from app import fetch_coconut_prices, fetch_fred_from_ycharts, fetch_bromine_details, fetch_cnyes_energy2_close_price
 
 import os
 
