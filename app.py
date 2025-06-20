@@ -11,8 +11,8 @@ import json
 app = Flask(__name__)
 
 # ✅ 替換為你自己的 LINE Token 和 Secret
-LINE_CHANNEL_ACCESS_TOKEN = '你的 access token'
-LINE_CHANNEL_SECRET = '你的 secret'
+LINE_CHANNEL_ACCESS_TOKEN = 'mQv7nvuVfG58XrY1UKu9wyzeIHwcH3B5QBAycTYy6QY3yxfP5roSLx+waGBS2mfyl/oQqJP1Pk21xZkxCiobAj2gMPbPDwRXCfnHp52wt6B/OG0QpdQ6cQsyleJd3XdDQ6eO/n3qCj3hOkaSM69SnQdB04t89/1O/w1cDnyilFU='
+LINE_CHANNEL_SECRET = '05be5ec479f89f2928e95ccbfd61fb4c'
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
