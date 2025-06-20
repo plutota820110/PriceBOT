@@ -3,21 +3,27 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
-from prices import fetch_coconut_prices, fetch_fred_from_ycharts, fetch_bromine_details, fetch_cnyes_energy2_close_price
+from prices import (
+    fetch_coconut_prices,
+    fetch_fred_from_ycharts,
+    fetch_bromine_details,
+    fetch_cnyes_energy2_close_price
+)
 
 import os
 
 app = Flask(__name__)
 
-LINE_CHANNEL_ACCESS_TOKEN = 'mQv7nvuVfG58XrY1UKu9wyzeIHwcH3B5QBAycTYy6QY3yxfP5roSLx+waGBS2mfyl/oQqJP1Pk21xZkxCiobAj2gMPbPDwRXCfnHp52wt6B/OG0QpdQ6cQsyleJd3XdDQ6eO/n3qCj3hOkaSM69SnQdB04t89/1O/w1cDnyilFU='
-LINE_CHANNEL_SECRET = '05be5ec479f89f2928e95ccbfd61fb4c'
+# ✅ 替換為你自己的 LINE TOKEN 和 SECRET
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv(mQv7nvuVfG58XrY1UKu9wyzeIHwcH3B5QBAycTYy6QY3yxfP5roSLx+waGBS2mfyl/oQqJP1Pk21xZkxCiobAj2gMPbPDwRXCfnHp52wt6B/OG0QpdQ6cQsyleJd3XdDQ6eO/n3qCj3hOkaSM69SnQdB04t89/1O/w1cDnyilFU=)
+LINE_CHANNEL_SECRET = os.getenv(05be5ec479f89f2928e95ccbfd61fb4c)
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
+    signature = request.headers.get('X-Line-Signature', '')
     body = request.get_data(as_text=True)
     try:
         handler.handle(body, signature)
@@ -32,6 +38,7 @@ def handle_message(event):
     if text in ["查價格", "價格", "椰殼價格", "煤炭價格", "溴素價格"]:
         reply = ""
 
+        # 椰殼活性碳價格
         coconut = fetch_coconut_prices()
         if coconut:
             reply += "\U0001F965 椰殼活性碳價格：\n"
@@ -42,6 +49,7 @@ def handle_message(event):
         else:
             reply += "椰殼活性碳價格 ❌ 抓取失敗\n"
 
+        # 煤質活性碳（FRED）
         latest_date, latest_val, change = fetch_fred_from_ycharts()
         reply += "\n\U0001FAA8 煤質活性碳價格：\n"
         if latest_val:
@@ -53,14 +61,17 @@ def handle_message(event):
         else:
             reply += "FRED ❌ 抓取失敗\n"
 
+        # 煤期貨價格（CNYES）
         coal_keywords = [
             ["紐約煤西北歐"],
             ["倫敦煤澳洲"],
             ["大連焦煤"]
         ]
         for kw in coal_keywords:
-            reply += fetch_cnyes_energy2_close_price(kw) + "\n"
+            result = fetch_cnyes_energy2_close_price(kw)
+            reply += result + "\n"
 
+        # 溴素
         bromine = fetch_bromine_details()
         reply += "\n\U0001F9EA 溴素最新價格：\n"
         if bromine:
@@ -68,14 +79,16 @@ def handle_message(event):
         else:
             reply += "溴素價格 ❌ 抓取失敗\n"
 
+        # 傳送 LINE 回覆
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=reply.strip())
         )
+
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="請輸入「查價格」即可查詢椰殼活性碳、煤炭與溴素價格 \U0001F4CA")
+            TextSendMessage(text="請輸入「查價格」即可查詢椰殼活性碳、煤炭與溴素價格 📊")
         )
 
 if __name__ == "__main__":
